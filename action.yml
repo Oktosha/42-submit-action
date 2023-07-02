@@ -11,15 +11,6 @@ runs:
     - uses: actions/checkout@v3
       with:
         path: github-repo
-    - run: pwd
+    - run: git --no-pager log --pretty -1
       shell: bash
-    - run: cd github-repo
-      shell: bash
-    - run: pwd
-      shell: bash
-    - run: echo submitting ${{ inputs.code-to-submit }}
-      shell: bash
-    - run: git --no-pager branch
-      shell: bash
-    - run: git --no-pager log --pretty
-      shell: bash
+      working-directory: ./github-repo
