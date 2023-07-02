@@ -17,8 +17,7 @@ runs:
       shell: bash
     - run: echo submitting ${{ inputs.code-to-submit }}.
       shell: bash
-    - id: getting the commit message
-      run: git --no-pager branch
+    - run: git --no-pager branch
       shell: bash
     - run: git --no-pager log --pretty
       shell: bash
