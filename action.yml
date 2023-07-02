@@ -11,15 +11,15 @@ runs:
     - uses: actions/checkout@v3
       with:
         path: github-repo
-    - run: find github-repo
+    - run: pwd
       shell: bash
     - run: cd github-repo
       shell: bash
-    - run: echo submitting ${{ inputs.code-to-submit }}.
+    - run: pwd
+      shell: bash
+    - run: echo submitting ${{ inputs.code-to-submit }}
       shell: bash
     - run: git --no-pager branch
       shell: bash
     - run: git --no-pager log --pretty
-      shell: bash
-    - run: echo "${{ github.action_path }}" >> $GITHUB_PATH
       shell: bash
