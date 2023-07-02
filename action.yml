@@ -1,0 +1,24 @@
+name: 'Submit to intra.42.fr'
+description: 'Submits the specified subfolder of the repo to the intranet'
+inputs:
+  code-to-submit:
+    description: 'Folder to submit to the intranet, the whole repo is submitted by default'
+    required: true
+    default: '.'
+runs:
+  using: "composite"
+  steps:
+    - id: Checking out the github repo
+    - uses: actions/checkout@v3
+      with:
+        path: github-repo
+    - run: find github-repo
+    - run: cd github-repo
+    - run: echo submitting ${{ inputs.code-to-submit }}.
+      shell: bash
+    - id: getting the commit message
+      run: git --no-pager branch
+      run: git --no-pager log --pretty
+      shell: bash
+    - run: echo "${{ github.action_path }}" >> $GITHUB_PATH
+      shell: bash
