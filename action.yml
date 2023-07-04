@@ -11,9 +11,6 @@ inputs:
   intra-ssh-key:
     description: 'Your private key to the intranet; set a separate one for this action'
     required: true
-  commit-message:
-    description: 'Commit message for the intranet submission; by default the last one from the active branch is used'
-    required: false
 runs:
   using: "composite"
   steps:
