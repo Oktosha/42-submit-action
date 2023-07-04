@@ -11,3 +11,7 @@ Todo:
     * add multiple dirs?
 + Example workflows (especially examples that use event_dispatch and change commit message)
 + Docs overall
+
+# Things to read while the docs are absent
+
+Super insightful read on ssh-agent: http://blog.joncairns.com/2013/12/understanding-ssh-agent-and-ssh-add/
