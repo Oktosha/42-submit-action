@@ -34,7 +34,7 @@ runs:
       shell: bash
       env:
         SSH_AUTH_SOCK: ${{ env.SSH_AUTH_SOCK }}
-        INRA_REPO_URL: ${{ intra.INRA_REPO_URL }}
+        INRA_REPO_URL: ${{ inputs.intra-repo }}
     - run: cat intra-repo/README.md
       shell: bash
     - run: echo "SSH_AUTH_SOCK=" >> "$GITHUB_ENV"
