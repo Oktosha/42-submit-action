@@ -17,12 +17,25 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - run: echo ${{ inputs.commit-message }}
-      shell: bash
     - uses: actions/checkout@v3
       with:
         path: github-repo
         persist-credentials: false
-    - run: git --no-pager log --pretty -1
+    - run: eval `ssh-agent`; echo "SSH_AUTH_SOCK=$SSH_AUTH_SOCK" >> "$GITHUB_ENV"
       shell: bash
-      working-directory: ./github-repo
+    - run: echo {{ env.SSH_AUTH_SOCK }}
+      shell: bash
+    - run: echo "${INTRA_SSH_KEY}" | ssh-add -
+      shell: bash
+      env:
+        INTRA_SSH_KEY: ${{ inputs.intra-ssh-key }}
+        SSH_AUTH_SOCK: ${{ env.SSH_AUTH_SOCK }}
+    - run: git clone "$INTRA_REPO_URL" intra-repo
+      shell: bash
+      env:
+        SSH_AUTH_SOCK: ${{ env.SSH_AUTH_SOCK }}
+        INRA_REPO_URL: ${{ intra.INRA_REPO_URL }}
+    - run: cat intra-repo/README.md
+      shell: bash
+    - run: echo "SSH_AUTH_SOCK=" >> "$GITHUB_ENV"
+      shell: bash
