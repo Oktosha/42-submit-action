@@ -23,18 +23,16 @@ runs:
         persist-credentials: false
     - run: eval `ssh-agent`; echo "SSH_AUTH_SOCK=$SSH_AUTH_SOCK" >> "$GITHUB_ENV"
       shell: bash
-    - run: echo {{ env.SSH_AUTH_SOCK }}
-      shell: bash
     - run: echo "${INTRA_SSH_KEY}" | ssh-add -
       shell: bash
       env:
         INTRA_SSH_KEY: ${{ inputs.intra-ssh-key }}
         SSH_AUTH_SOCK: ${{ env.SSH_AUTH_SOCK }}
-    - run: git clone "$INTRA_REPO_URL" intra-repo
+    - run: git clone "${INTRA_REPO_URL}" intra-repo
       shell: bash
       env:
         SSH_AUTH_SOCK: ${{ env.SSH_AUTH_SOCK }}
-        INRA_REPO_URL: ${{ inputs.intra-repo }}
+        INTRA_REPO_URL: ${{ inputs.intra-repo }}
     - run: cat intra-repo/README.md
       shell: bash
     - run: echo "SSH_AUTH_SOCK=" >> "$GITHUB_ENV"
