@@ -2,15 +2,25 @@ name: 'Submit to intra.42.fr'
 description: 'Submits the specified subfolder of the repo to the intranet'
 inputs:
   code-to-submit:
-    description: 'Folder to submit to the intranet, the whole repo is submitted by default'
+    description: 'The subfolder of your github repo to submit to the intranet, the whole repo is submitted by default'
     required: true
     default: '.'
+  intra-repo:
+    description: 'Git repository link on your project page'
+    required: true
+  intra-ssh-key:
+    description: 'Your private key to the intranet; set a separate one for this action'
+    required: true
+  commit-message:
+    description: 'Commit message for the intranet submission; by default the last one from the active branch is used'
+    required: false
 runs:
   using: "composite"
   steps:
     - uses: actions/checkout@v3
       with:
         path: github-repo
+        persist-credentials: false
     - run: git --no-pager log --pretty -1
       shell: bash
       working-directory: ./github-repo
