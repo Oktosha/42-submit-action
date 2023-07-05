@@ -82,7 +82,7 @@ runs:
     - run: |
         git commit -m "robo: Submit ${SHA:0:7} from $REPO/$FOLDER
         
-        $MESSAGE" --author="$AUTHOR <$EMAIL>"
+        $MESSAGE" --author="Placeholder Author <placeholder@example.org>"
       shell: bash
       env:
         SHA: ${{ github.sha }}
