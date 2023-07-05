@@ -23,15 +23,15 @@ runs:
       shell: bash
       working-directory: ./github-repo
     - run: |
-        export AUTHOR=`git --no-pager log --pretty=format:"%an" -1`;
-        echo "detected author: $AUTHOR";
-        echo "AUTHOR=$AUTHOR" >> "$GITHUB_ENV"
+        export GIT_AUTHOR_NAME=`git --no-pager log --pretty=format:"%an" -1`;
+        echo "detected author: $GIT_AUTHOR_NAME";
+        echo "GIT_AUTHOR_NAME=$GIT_AUTHOR_NAME" >> "$GITHUB_ENV"
       shell: bash
       working-directory: ./github-repo
     - run: |
-        export EMAIL=`git --no-pager log --pretty=format:"%ae" -1`;
-        echo "detected email: $EMAIL";
-        echo "EMAIL=$EMAIL" >> "$GITHUB_ENV"
+        export GIT_AUTHOR_EMAIL=`git --no-pager log --pretty=format:"%ae" -1`;
+        echo "detected email: $GIT_AUTHOR_EMAIL";
+        echo "GIT_AUTHOR_EMAIL=$GIT_AUTHOR_EMAIL" >> "$GITHUB_ENV"
       shell: bash
       working-directory: ./github-repo
     - run: |
@@ -82,14 +82,14 @@ runs:
     - run: |
         git commit -m "robo: Submit ${SHA:0:7} from $REPO/$FOLDER
         
-        $MESSAGE" --author="Placeholder Author <placeholder@example.org>"
+        $MESSAGE"
       shell: bash
       env:
         SHA: ${{ github.sha }}
         REPO: ${{ github.repository }}
         FOLDER: ${{ inputs.code-to-submit }}
-        AUTHOR: ${{ env.AUTHOR }}
-        EMAIL: ${{ env.EMAIL }}
+        GIT_AUTHOR_NAME: ${{ env.GIT_AUTHOR_NAME }}
+        GIT_AUTHOR_EMAIL: ${{ env.GIT_AUTHOR_EMAIL }}
         MESSAGE: ${{ env.MESSAGE }}
       working-directory: ./submit-repo
     
@@ -105,7 +105,7 @@ runs:
         echo "SSH_AUTH_SOCK=" >> "$GITHUB_ENV"
         echo "REPO=" >> "$GITHUB_ENV"
         echo "FOLDER=" >> "$GITHUB_ENV"
-        echo "AUTHOR=" >> "$GITHUB_ENV"
-        echo "EMAIL=" >> "$GITHUB_ENV"
+        echo "GIT_AUTHOR_NAME=" >> "$GITHUB_ENV"
+        echo "GIT_AUTHOR_EMAIL=" >> "$GITHUB_ENV"
         echo "MESSAGE=" >> "$GITHUB_ENV"
       shell: bash
