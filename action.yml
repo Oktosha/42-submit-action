@@ -43,7 +43,10 @@ runs:
       working-directory: ./github-repo
 
     # Connecting to the intra
-    - run: eval `ssh-agent`; echo "SSH_AUTH_SOCK=$SSH_AUTH_SOCK" >> "$GITHUB_ENV"
+    - run: |
+        eval `ssh-agent`;
+        echo "SSH_AUTH_SOCK=$SSH_AUTH_SOCK" >> "$GITHUB_ENV";
+        echo "SSH_AGENT_PID=$SSH_AGENT_PID" >> "$GITHUB_ENV"
       shell: bash
     - run: echo "${INTRA_SSH_KEY}" | ssh-add -
       shell: bash
@@ -76,6 +79,12 @@ runs:
       working-directory: ./submit-repo
 
     # Forming commit
+    - run: git config user.name "$GIT_AUTHOR_NAME"
+      shell: bash
+      working-directory: ./submit-repo
+    - run: git config user.email "$GIT_AUTHOR_EMAIL"
+      shell: bash
+      working-directory: ./submit-repo
     - run: git add .
       shell: bash
       working-directory: ./submit-repo
@@ -100,9 +109,16 @@ runs:
       env:
         SSH_AUTH_SOCK: ${{ env.SSH_AUTH_SOCK }}
 
-    # Resetting the env vars to the best of my ability
+    # Cleanup (delete folders, kill ssh-agent, reset env vars)
+    - run: rm -rf intra-repo submit-repo github-repo
+      shell: bash
+    - run: kill $SSH_AGENT_PID
+      shell: bash
+      env:
+        SSH_AGENT_PID: ${{ env.SSH_AGENT_PID }}
     - run: |
         echo "SSH_AUTH_SOCK=" >> "$GITHUB_ENV"
+        echo "SSH_AGENT_PID=" >> "$GITHUB_ENV"
         echo "REPO=" >> "$GITHUB_ENV"
         echo "FOLDER=" >> "$GITHUB_ENV"
         echo "GIT_AUTHOR_NAME=" >> "$GITHUB_ENV"
