@@ -2,24 +2,126 @@ name: 'Submit to intra.42.fr'
 description: 'Submits the specified subfolder of the repo to the intranet'
 inputs:
   code-to-submit:
-    description: 'Folder to submit to the intranet, the whole repo is submitted by default'
+    description: 'The subfolder of your github repo to submit to the intranet, the whole repo is submitted by default'
     required: true
     default: '.'
+  intra-repo:
+    description: 'Git repository link on your project page'
+    required: true
+  intra-ssh-key:
+    description: 'Your private key to the intranet; set a separate one for this action'
+    required: true
 runs:
   using: "composite"
   steps:
+    # Getting info from the github repo
     - uses: actions/checkout@v3
       with:
         path: github-repo
-    - run: find github-repo
+        persist-credentials: false
+    - run: git log
       shell: bash
-    - run: cd github-repo
+      working-directory: ./github-repo
+    - run: |
+        export CODAM_AUTHOR_NAME=`git --no-pager log --pretty=format:"%an" -1`;
+        echo "detected author: $CODAM_AUTHOR_NAME";
+        echo "CODAM_AUTHOR_NAME=$CODAM_AUTHOR_NAME" >> "$GITHUB_ENV"
       shell: bash
-    - run: echo submitting ${{ inputs.code-to-submit }}.
+      working-directory: ./github-repo
+    - run: |
+        export CODAM_AUTHOR_EMAIL=`git --no-pager log --pretty=format:"%ae" -1`;
+        echo "detected email: $CODAM_AUTHOR_EMAIL";
+        echo "CODAM_AUTHOR_EMAIL=$CODAM_AUTHOR_EMAIL" >> "$GITHUB_ENV"
       shell: bash
-    - run: git --no-pager branch
+      working-directory: ./github-repo
+    - run: |
+        export CODAM_COMMIT_MESSAGE=`git --no-pager log --pretty=format:"%B" -1`;
+        echo "detected message:";
+        echo "$CODAM_COMMIT_MESSAGE";
+        echo "CODAM_COMMIT_MESSAGE=$CODAM_COMMIT_MESSAGE" >> "$GITHUB_ENV"
       shell: bash
-    - run: git --no-pager log --pretty
+      working-directory: ./github-repo
+
+    # Connecting to the intra
+    - run: |
+        eval `ssh-agent`;
+        echo "SSH_AUTH_SOCK=$SSH_AUTH_SOCK" >> "$GITHUB_ENV";
+        echo "SSH_AGENT_PID=$SSH_AGENT_PID" >> "$GITHUB_ENV"
       shell: bash
-    - run: echo "${{ github.action_path }}" >> $GITHUB_PATH
+    - run: echo "${INTRA_SSH_KEY}" | ssh-add -
+      shell: bash
+      env:
+        INTRA_SSH_KEY: ${{ inputs.intra-ssh-key }}
+        SSH_AUTH_SOCK: ${{ env.SSH_AUTH_SOCK }}
+    - run: GIT_SSH_COMMAND="ssh -o StrictHostKeyChecking=no" git clone "${INTRA_REPO_URL}" intra-repo
+      shell: bash
+      env:
+        SSH_AUTH_SOCK: ${{ env.SSH_AUTH_SOCK }}
+        INTRA_REPO_URL: ${{ inputs.intra-repo }}
+    
+    # copying code to submit to a separate folder
+    # and replace its git data with the intranet git data
+    - run: cp -r "github-repo/$CODE_TO_SUBMIT" submit-repo
+      shell: bash
+      env:
+        CODE_TO_SUBMIT: ${{ inputs.code-to-submit }}
+    - run: rm -rf submit-repo/.git
+      shell: bash
+    - run: cp -r intra-repo/.git submit-repo
+      shell: bash
+
+    # status commands for you to see what's going on
+    - run: git status
+      shell: bash
+      working-directory: ./submit-repo
+    - run: git diff
+      shell: bash
+      working-directory: ./submit-repo
+
+    # Forming commit
+    - run: git config user.name "$CODAM_AUTHOR_NAME"
+      shell: bash
+      working-directory: ./submit-repo
+    - run: git config user.email "$CODAM_AUTHOR_EMAIL"
+      shell: bash
+      working-directory: ./submit-repo
+    - run: git add .
+      shell: bash
+      working-directory: ./submit-repo
+    - run: |
+        git commit -m "robo: Submit ${SHA:0:7} from $REPO/$FOLDER
+        
+        $CODAM_COMMIT_MESSAGE"
+      shell: bash
+      env:
+        SHA: ${{ github.sha }}
+        REPO: ${{ github.repository }}
+        FOLDER: ${{ inputs.code-to-submit }}
+        CODAM_COMMIT_MESSAGE: ${{ env.CODAM_COMMIT_MESSAGE }}
+      working-directory: ./submit-repo
+    
+    # Displaying resulting commit message
+    - run: git log -1
+      shell: bash
+    
+    # Pushing to the intra
+    - run: git push
+      shell: bash
+      working-directory: ./submit-repo
+      env:
+        SSH_AUTH_SOCK: ${{ env.SSH_AUTH_SOCK }}
+
+    # Cleanup (delete folders, kill ssh-agent, reset env vars)
+    - run: rm -rf intra-repo submit-repo github-repo
+      shell: bash
+    - run: kill $SSH_AGENT_PID
+      shell: bash
+      env:
+        SSH_AGENT_PID: ${{ env.SSH_AGENT_PID }}
+    - run: |
+        echo "SSH_AUTH_SOCK=" >> "$GITHUB_ENV"
+        echo "SSH_AGENT_PID=" >> "$GITHUB_ENV"
+        echo "CODAM_AUTHOR_NAME=" >> "$GITHUB_ENV"
+        echo "CODAM_AUTHOR_EMAIL=" >> "$GITHUB_ENV"
+        echo "CODAM_COMMIT_MESSAGE=" >> "$GITHUB_ENV"
       shell: bash
