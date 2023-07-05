@@ -14,10 +14,28 @@ inputs:
 runs:
   using: "composite"
   steps:
+    # Getting info from the github repo
     - uses: actions/checkout@v3
       with:
         path: github-repo
         persist-credentials: false
+    - run: >
+        AUTHOR=`git --no-pager log --pretty=format:"%an" -1`
+        echo "AUTHOR=$AUTHOR" >> "$GITHUB_ENV"
+      shell: bash
+      working-directory: ./github-repo
+    - run: >
+        EMAIL=`git --no-pager log --pretty=format:"%ae" -1`
+        echo "EMAIL=$EMAIL" >> "$GITHUB_ENV"
+      shell: bash
+      working-directory: ./github-repo
+    - run: >
+        MESSAGE=`git --no-pager log --pretty=format:"%B" -1`
+        echo "MESSAGE=$MESSAGE" >> "$GITHUB_ENV"
+      shell: bash
+      working-directory: ./github-repo
+
+    # Connecting to the intra
     - run: eval `ssh-agent`; echo "SSH_AUTH_SOCK=$SSH_AUTH_SOCK" >> "$GITHUB_ENV"
       shell: bash
     - run: echo "${INTRA_SSH_KEY}" | ssh-add -
@@ -30,6 +48,9 @@ runs:
       env:
         SSH_AUTH_SOCK: ${{ env.SSH_AUTH_SOCK }}
         INTRA_REPO_URL: ${{ inputs.intra-repo }}
+    
+    # copying code to submit to a separate folder
+    # and replace its git data with the intranet git data
     - run: cp -r "github-repo/$CODE_TO_SUBMIT" submit-repo
       shell: bash
       env:
@@ -38,27 +59,45 @@ runs:
       shell: bash
     - run: cp -r intra-repo/.git submit-repo
       shell: bash
+
+    # status commands for you to see what's going on
     - run: git status
       shell: bash
       working-directory: ./submit-repo
     - run: git diff
       shell: bash
       working-directory: ./submit-repo
+
+    # Forming commit
     - run: git add .
       shell: bash
-      working-directory: ./submit-repo
     - run: |
-        git commit -m "robo: Submit ${SHA:0:7} from $REPO/$FOLDER"
+        git commit -m "robo: Submit ${SHA:0:7} from $REPO/$FOLDER
+        
+        $MESSAGE" --author="$AUTHOR <$EMAIL>"
       shell: bash
       env:
         SHA: ${{ github.sha }}
         REPO: ${{ github.repository }}
         FOLDER: ${{ inputs.code-to-submit }}
+        AUTHOR: ${{ env.AUTHOR }}
+        EMAIL: ${{ env.EMAIL }}
+        MESSAGE: ${{ env.MESSAGE }}
       working-directory: ./submit-repo
+    
+    # Pushing to the intra
     - run: git push
       shell: bash
       working-directory: ./submit-repo
       env:
         SSH_AUTH_SOCK: ${{ env.SSH_AUTH_SOCK }}
-    - run: echo "SSH_AUTH_SOCK=" >> "$GITHUB_ENV"
+
+    # Resetting the env vars to the best of my ability
+    - run: |
+        echo "SSH_AUTH_SOCK=" >> "$GITHUB_ENV"
+        echo "REPO=" >> "$GITHUB_ENV"
+        echo "FOLDER=" >> "$GITHUB_ENV"
+        echo "AUTHOR=" >> "$GITHUB_ENV"
+        echo "EMAIL=" >> "$GITHUB_ENV"
+        echo "MESSAGE=" >> "$GITHUB_ENV"
       shell: bash

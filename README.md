@@ -1,5 +1,5 @@
 # 42-submit-action
-A github action that submits specified part of the repo to intra.42.fr
+A github action that submits specified part of the repo to intra.42.fr. The author and the email are deduced from the latest commit.
 
 # 🛑 Warning! Work in progress! 🛑
 
