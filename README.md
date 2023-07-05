@@ -1,14 +1,22 @@
 # 42-submit-action
-A github action that submits specified part of the repo to intra.42.fr with the latest commit message
+A github action that submits specified part of the repo to intra.42.fr
 
 # 🛑 Warning! Work in progress! 🛑
 
 Todo:
 
-+ Design parameters
++ Better parameters
     * passing author and commit message as optional parameter (for manual dispatch)
+    * option to deduce the author and the message from the latest commit
 + Test commiting the whole repo and subdirs
-    * add multiple dirs?
+    * multiple submitted dirs
+    * submodules handling
+    * more tests on submitting the whole repo
++ nice errors
+    * message when there is nothing to commit
+    * when the code-to-submit dir doesn't exist
+    * when the ssh key doesn't work
+    * ...
 + Example workflows (especially examples that use event_dispatch and change commit message)
 + Docs overall
 

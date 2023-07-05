@@ -30,7 +30,35 @@ runs:
       env:
         SSH_AUTH_SOCK: ${{ env.SSH_AUTH_SOCK }}
         INTRA_REPO_URL: ${{ inputs.intra-repo }}
-    - run: cat intra-repo/README.md
+    - run: cp -r "github-repo/$CODE_TO_SUBMIT" submit-repo
       shell: bash
+      env:
+        CODE_TO_SUBMIT: ${{ inputs.code-to-submit }}
+    - run: rm -rf submit-repo/.git
+      shell: bash
+    - run: cp -r intra-repo/.git submit-repo
+      shell: bash
+    - run: git status
+      shell: bash
+      working-directory: ./submit-repo
+    - run: git diff
+      shell: bash
+      working-directory: ./submit-repo
+    - run: git add .
+      shell: bash
+      working-directory: ./submit-repo
+    - run: |
+        git commit -m "robo: Submit ${SHA:0:7} from $REPO/$FOLDER"
+      shell: bash
+      env:
+        SHA: ${{ github.sha }}
+        REPO: ${{ github.repository }}
+        FOLDER: ${{ inputs.code-to-submit }}
+      working-directory: ./submit-repo
+    - run: git push
+      shell: bash
+      working-directory: ./submit-repo
+      env:
+        SSH_AUTH_SOCK: ${{ env.SSH_AUTH_SOCK }}
     - run: echo "SSH_AUTH_SOCK=" >> "$GITHUB_ENV"
       shell: bash
