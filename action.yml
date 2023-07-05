@@ -22,18 +22,22 @@ runs:
     - run: git log
       shell: bash
       working-directory: ./github-repo
-    - run: >
-        AUTHOR=`git --no-pager log --pretty=format:"%an" -1`
+    - run: |
+        export AUTHOR=`git --no-pager log --pretty=format:"%an" -1`;
+        echo "detected author: $AUTHOR";
         echo "AUTHOR=$AUTHOR" >> "$GITHUB_ENV"
       shell: bash
       working-directory: ./github-repo
-    - run: >
-        EMAIL=`git --no-pager log --pretty=format:"%ae" -1`
+    - run: |
+        export EMAIL=`git --no-pager log --pretty=format:"%ae" -1`;
+        echo "detected email: $EMAIL";
         echo "EMAIL=$EMAIL" >> "$GITHUB_ENV"
       shell: bash
       working-directory: ./github-repo
-    - run: >
-        MESSAGE=`git --no-pager log --pretty=format:"%B" -1`
+    - run: |
+        export MESSAGE=`git --no-pager log --pretty=format:"%B" -1`;
+        echo "detected message:";
+        echo "$MESSAGE";
         echo "MESSAGE=$MESSAGE" >> "$GITHUB_ENV"
       shell: bash
       working-directory: ./github-repo
