@@ -14,4 +14,7 @@ Todo:
 
 # Things to read while the docs are absent
 
+Example usage in a minishell project repo:
+https://github.com/Oktosha/codam-minishell/blob/920cc45715a3d70bb6be984979ced78aa3a34d1f/.github/workflows/submit.yml
+
 Super insightful read on ssh-agent: http://blog.joncairns.com/2013/12/understanding-ssh-agent-and-ssh-add/
