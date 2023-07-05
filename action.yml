@@ -16,22 +16,26 @@ runs:
   steps:
     # Getting info from the github repo
     - uses: actions/checkout@v3
+      name: Getting the github repo
       with:
         path: github-repo
         persist-credentials: false
     - run: >
         AUTHOR=`git --no-pager log --pretty=format:"%an" -1`
         echo "AUTHOR=$AUTHOR" >> "$GITHUB_ENV"
+      name: Getting author name
       shell: bash
       working-directory: ./github-repo
     - run: >
         EMAIL=`git --no-pager log --pretty=format:"%ae" -1`
         echo "EMAIL=$EMAIL" >> "$GITHUB_ENV"
+      name: Getting author email
       shell: bash
       working-directory: ./github-repo
     - run: >
         MESSAGE=`git --no-pager log --pretty=format:"%B" -1`
         echo "MESSAGE=$MESSAGE" >> "$GITHUB_ENV"
+      name: Getting commit message
       shell: bash
       working-directory: ./github-repo
 
@@ -71,6 +75,7 @@ runs:
     # Forming commit
     - run: git add .
       shell: bash
+      working-directory: ./submit-repo
     - run: |
         git commit -m "robo: Submit ${SHA:0:7} from $REPO/$FOLDER
         
