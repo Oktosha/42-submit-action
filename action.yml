@@ -23,22 +23,22 @@ runs:
       shell: bash
       working-directory: ./github-repo
     - run: |
-        export GIT_AUTHOR_NAME=`git --no-pager log --pretty=format:"%an" -1`;
-        echo "detected author: $GIT_AUTHOR_NAME";
-        echo "GIT_AUTHOR_NAME=$GIT_AUTHOR_NAME" >> "$GITHUB_ENV"
+        export CODAM_AUTHOR_NAME=`git --no-pager log --pretty=format:"%an" -1`;
+        echo "detected author: $CODAM_AUTHOR_NAME";
+        echo "CODAM_AUTHOR_NAME=$CODAM_AUTHOR_NAME" >> "$GITHUB_ENV"
       shell: bash
       working-directory: ./github-repo
     - run: |
-        export GIT_AUTHOR_EMAIL=`git --no-pager log --pretty=format:"%ae" -1`;
-        echo "detected email: $GIT_AUTHOR_EMAIL";
-        echo "GIT_AUTHOR_EMAIL=$GIT_AUTHOR_EMAIL" >> "$GITHUB_ENV"
+        export CODAM_AUTHOR_EMAIL=`git --no-pager log --pretty=format:"%ae" -1`;
+        echo "detected email: $CODAM_AUTHOR_EMAIL";
+        echo "CODAM_AUTHOR_EMAIL=$CODAM_AUTHOR_EMAIL" >> "$GITHUB_ENV"
       shell: bash
       working-directory: ./github-repo
     - run: |
-        export MESSAGE=`git --no-pager log --pretty=format:"%B" -1`;
+        export CODAM_COMMIT_MESSAGE=`git --no-pager log --pretty=format:"%B" -1`;
         echo "detected message:";
-        echo "$MESSAGE";
-        echo "MESSAGE=$MESSAGE" >> "$GITHUB_ENV"
+        echo "$CODAM_COMMIT_MESSAGE";
+        echo "CODAM_COMMIT_MESSAGE=$CODAM_COMMIT_MESSAGE" >> "$GITHUB_ENV"
       shell: bash
       working-directory: ./github-repo
 
@@ -79,10 +79,10 @@ runs:
       working-directory: ./submit-repo
 
     # Forming commit
-    - run: git config user.name "$GIT_AUTHOR_NAME"
+    - run: git config user.name "$CODAM_AUTHOR_NAME"
       shell: bash
       working-directory: ./submit-repo
-    - run: git config user.email "$GIT_AUTHOR_EMAIL"
+    - run: git config user.email "$CODAM_AUTHOR_EMAIL"
       shell: bash
       working-directory: ./submit-repo
     - run: git add .
@@ -91,16 +91,18 @@ runs:
     - run: |
         git commit -m "robo: Submit ${SHA:0:7} from $REPO/$FOLDER
         
-        $MESSAGE"
+        $CODAM_COMMIT_MESSAGE"
       shell: bash
       env:
         SHA: ${{ github.sha }}
         REPO: ${{ github.repository }}
         FOLDER: ${{ inputs.code-to-submit }}
-        GIT_AUTHOR_NAME: ${{ env.GIT_AUTHOR_NAME }}
-        GIT_AUTHOR_EMAIL: ${{ env.GIT_AUTHOR_EMAIL }}
-        MESSAGE: ${{ env.MESSAGE }}
+        CODAM_COMMIT_MESSAGE: ${{ env.CODAM_COMMIT_MESSAGE }}
       working-directory: ./submit-repo
+    
+    # Displaying resulting commit message
+    - run: git log -1
+      shell: bash
     
     # Pushing to the intra
     - run: git push
@@ -119,9 +121,7 @@ runs:
     - run: |
         echo "SSH_AUTH_SOCK=" >> "$GITHUB_ENV"
         echo "SSH_AGENT_PID=" >> "$GITHUB_ENV"
-        echo "REPO=" >> "$GITHUB_ENV"
-        echo "FOLDER=" >> "$GITHUB_ENV"
-        echo "GIT_AUTHOR_NAME=" >> "$GITHUB_ENV"
-        echo "GIT_AUTHOR_EMAIL=" >> "$GITHUB_ENV"
-        echo "MESSAGE=" >> "$GITHUB_ENV"
+        echo "CODAM_AUTHOR_NAME=" >> "$GITHUB_ENV"
+        echo "CODAM_AUTHOR_EMAIL=" >> "$GITHUB_ENV"
+        echo "CODAM_COMMIT_MESSAGE=" >> "$GITHUB_ENV"
       shell: bash

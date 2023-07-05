@@ -6,8 +6,7 @@ A github action that submits specified part of the repo to intra.42.fr. The auth
 Todo:
 
 + Better parameters
-    * passing author and commit message as optional parameter (for manual dispatch)
-    * option to deduce the author and the message from the latest commit
+    * passing author and commit message as optional parameter (can be especially nice for manual dispatch)
 + Test commiting the whole repo and subdirs
     * multiple submitted dirs
     * submodules handling
