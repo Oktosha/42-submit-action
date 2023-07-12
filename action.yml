@@ -106,7 +106,8 @@ runs:
     # Displaying resulting commit message
     - run: git log -1
       shell: bash
-    
+      working-directory: ./submit-repo
+
     # Pushing to the intra
     - run: git push
       shell: bash
