@@ -4,14 +4,14 @@ A github action that submits specified part of the repo to intra.42.fr. The auth
 
 # 🛑 Warning! Work in progress! 🛑
 
-Current ready-to-use version is [v0.1.0](https://github.com/Oktosha/42-submit-action/tree/v0.1.0).
+Current ready-to-use version is [v0.1.1](https://github.com/Oktosha/42-submit-action/tree/v0.1.1).
 
 It is good enough to work for [our minishell](https://github.com/Oktosha/codam-minishell) but that's it.
 
 # Example usage
 
 ```yaml
-- uses: Oktosha/42-submit-action@v0.1.0
+- uses: Oktosha/42-submit-action@v0.1.1
         with:
           code-to-submit: kotishell
           intra-repo: ${{ secrets.INTRA_REPO_URL }}

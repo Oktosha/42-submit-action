@@ -38,7 +38,10 @@ runs:
         export CODAM_COMMIT_MESSAGE=`git --no-pager log --pretty=format:"%B" -1`;
         echo "detected message:";
         echo "$CODAM_COMMIT_MESSAGE";
-        echo "CODAM_COMMIT_MESSAGE=$CODAM_COMMIT_MESSAGE" >> "$GITHUB_ENV"
+        EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
+        echo "CODAM_COMMIT_MESSAGE<<$EOF" >> "$GITHUB_ENV"
+        echo "$CODAM_COMMIT_MESSAGE" >> "$GITHUB_ENV"
+        echo "$EOF" >> "$GITHUB_ENV"
       shell: bash
       working-directory: ./github-repo
 
@@ -103,7 +106,8 @@ runs:
     # Displaying resulting commit message
     - run: git log -1
       shell: bash
-    
+      working-directory: ./submit-repo
+
     # Pushing to the intra
     - run: git push
       shell: bash
